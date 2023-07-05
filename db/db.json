@@ -1,0 +1,22 @@
+{
+    "book": [],
+    "users": [
+        {
+            "name": "Vova",
+            "email": "vova@mail.com",
+            "role": "admin"
+        },
+        {
+            "name": "Olga",
+            "email": "olga@mail.com",
+            "role": "librarian"
+        },
+        {
+            "name": "Anna",
+            "email": "anna@mail.com",
+            "role": "user"
+        }
+    ],
+    "rating": [],
+    "comment": []
+}
