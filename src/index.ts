@@ -105,7 +105,12 @@ class User implements User_params {
     email: string;
     role: string;
 
-    constructor(user_params: User_params) {}
+    constructor(user_params: User_params) {
+        for (let [key, value] of Object.entries(user_params)) {
+            this[key] = value;
+        }
+        this.id = 
+    }
 
     toString(): string {
         const params_str = Object.values(this).map(value => `${value}`).join(", ");
@@ -121,7 +126,7 @@ class User implements User_params {
     del_favorite_book(book: Book): boolean { return false; }
 
     add_comment_book(book: Book, comment: Comment): boolean { return false; };
-    add_book_
+
 }
 
 class Admin extends User {
@@ -152,8 +157,8 @@ class Book implements Book_params {
     year: number;
 
     constructor(book_params: Book_params) {}
+    find_book(pbook_params: Partial<Book_params>): Book[] {};
 }
 
 console.log("START INDEX at", new Date());
 const db = new DB();
-
