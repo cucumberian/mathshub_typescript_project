@@ -39,6 +39,19 @@ class RatingManager {
         return false;
     }
 
+    editRating(
+        ratingId: number,
+        newRatingParams: Partial<Omit<RatingParams, "id">>
+    ): boolean {
+        const editedRating = this.ratings.get(ratingId);
+        if (editedRating === undefined)
+            return false;
+        
+        for (let [key, value] of Object.entries(newRatingParams))
+            editedRating[key] = value;
+        return true;
+    }
+
     getAllRatings(): Rating[] {
         return Object.values(Object.fromEntries(this.ratings));
     }
