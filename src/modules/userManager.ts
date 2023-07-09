@@ -3,6 +3,10 @@ import { UserParams, User } from './user';
 class UserManager {
     userMap: Map<number, User>;
 
+    getAllUsers(): User[] {
+        return Object.values(Object.fromEntries(this.userMap));
+    }
+
     createNewUser(userParams: Omit<UserParams, "id">): User {
         const lastId: number = this.userMap.size;
         const newUser = new User({
@@ -12,7 +16,16 @@ class UserManager {
         return newUser;
     }
 
-    addUser(user: User): void {
+    // лучше ли оставить тип undefined ?
+    getUser(userId: number): User | null {
+        const user = this.userMap.get(userId);
+        if (user)
+            return user;
+        else
+            return null;
+    }
+
+    setUser(user: User): void {
         this.userMap.set(user.id, user);
     }
 
@@ -24,7 +37,16 @@ class UserManager {
         return false;
     }
 
-    editUser(new_uper_params: Partial<Omit<UserParams, "id">>) {}
+    editUser(userId: number, newUserParams: Partial<Omit<UserParams, "id">>): boolean {
+        const editedUser = this.userMap.get(userId);
+        if (editedUser === undefined)
+            return false;
+
+        for (let [key, value] of Object.entries(newUserParams)) {
+            editedUser[key] = value;
+        }
+        return true;
+    }
 
 }
 
