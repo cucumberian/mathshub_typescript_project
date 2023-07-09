@@ -49,9 +49,7 @@ class Catalogue {
     findBooks(bookParams: Partial<Omit<BookParams, "id">>): Book[] { 
         let books = this.getAllBooks();
         for (let [key, value] of Object.entries(bookParams)) {
-            books = books.filter( book => {
-                book[key] === value;
-            });
+            books = books.filter( book => book[key] === value);
         }
         return books;
     };
