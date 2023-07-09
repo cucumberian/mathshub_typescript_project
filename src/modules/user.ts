@@ -28,6 +28,7 @@ class User implements UserParams {
         }
     }
 
+    // Common methods
     findBooks(
         catalogue: Catalogue, 
         bookSearchParams: Partial<BookParams>,
@@ -35,20 +36,13 @@ class User implements UserParams {
         return null;
     };
 
-    addBookToFavorites(book: Book): boolean {
-        return false;
-    }
-
-    delBookFromFavorites(book: Book): boolean {
-        return false;
-    }
-
     addCommentToBook(
         commentParams: Omit<CommentParams, "id">,
         commentManager: CommentManager,
-    ): Comment | null {
+    ): Comment {
         const newComment = commentManager.createNewComment(commentParams);
-        commentManager.set
+        commentManager.setComment(newComment);
+        return newComment;
     }
 
     getBookList(catalogue: Catalogue): Book[] {
@@ -58,6 +52,23 @@ class User implements UserParams {
     getUserList(userManager: UserManager): User[] {
         return userManager.getAllUsers();
     }
+    
+    findBook(catalogue: Catalogue, bookParams: Partial<Omit<BookParams, "id">>): Book[] {
+        return catalogue.findBooks(bookParams);
+    }
+
+    addFavoriteBook(book: Book): void {
+        this.favorites.set(book.id, book);
+    }
+
+    delFavoriteBook(book: Book): void {
+        this.favorites.delete(book.id);
+    }
+
+    listFavorites(): Book[] {
+        return Object.values(Object.fromEntries(this.favorites));
+    }
+
 
     // Admin methods
     addUser(userManager: UserManager, userParams: Omit<UserParams, "id">): User | null {
@@ -121,15 +132,6 @@ class User implements UserParams {
             return null;
     }
     //
-
-    findBook(catalogue: Catalogue, bookParams: Partial<Omit<BookParams, "id">>): Book[] {
-        return catalogue.findBooks(bookParams);
-    }
-
-    addFavoriteBook(book: Book): void {
-        this.favorites.set(book.id, book);
-    }
-
     
 };
 

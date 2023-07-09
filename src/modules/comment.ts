@@ -65,6 +65,14 @@ class CommentManager {
         return this.getAllComments().filter( comment => comment.userId === bookId);
     }
 
+    findComment(commentParams: Partial<Omit<CommentParams, "id">>): Comment[] {
+        let comments = this.getAllComments();
+        for (let [key, value] of Object.entries(commentParams)) {
+            comments = comments.filter( comment => comment[key] === value);
+        }
+        return comments;
+    }
+
 }
 
 export { CommentParams, Comment, CommentManager };
