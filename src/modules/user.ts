@@ -2,6 +2,7 @@ import { Catalogue } from './catalogue';
 import { BookParams, Book } from './book';
 import { Comment, CommentManager, CommentParams } from './comment'; 
 import { UserManager } from './userManager';
+import { RatingManager } from './rating';
 
 enum Role {Admin, Librarian, User};
 
@@ -28,12 +29,13 @@ class User implements UserParams {
         }
     }
 
+
     // Common methods
     findBooks(
         catalogue: Catalogue, 
-        bookSearchParams: Partial<BookParams>,
+        bookSearchParams: Partial<Omit<BookParams, "id">>,
     ): Book[] | null {
-        return null;
+        return catalogue.findBooks(bookSearchParams);
     };
 
     addCommentToBook(
@@ -45,6 +47,33 @@ class User implements UserParams {
         return newComment;
     }
 
+    setBookRating(
+        rating: number,
+        book: Book,
+        ratingManager: RatingManager,
+    ) : void {
+        const ratings = ratingManager.findRatings({userId: this.id, bookId: book.id});
+        if (ratings.length === 0) {
+            const newRating = ratingManager.createNewRating({
+                rating: rating,
+                bookId: book.id,
+                userId: this.id,
+            });
+            ratingManager.setRating(newRating);
+        }
+        else {
+            const firstRating = ratings[0]; // берем первый рейтинг (нет проверки на единственность)
+            ratingManager.editRating(
+                firstRating.id,
+                {
+                    rating: rating,
+                    userId: this.id,
+                    bookId: book.id
+                }
+            );
+        }
+    };
+
     getBookList(catalogue: Catalogue): Book[] {
         return catalogue.getAllBooks();
     }
@@ -53,9 +82,6 @@ class User implements UserParams {
         return userManager.getAllUsers();
     }
     
-    findBook(catalogue: Catalogue, bookParams: Partial<Omit<BookParams, "id">>): Book[] {
-        return catalogue.findBooks(bookParams);
-    }
 
     addFavoriteBook(book: Book): void {
         this.favorites.set(book.id, book);
