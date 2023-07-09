@@ -3,6 +3,10 @@ import { BookParams, Book } from './book';
 class Catalogue {
     bookMap: Map<number, Book>;
 
+    getAllBooks(): Book[] {
+        return Object.values(Object.fromEntries(this.bookMap));
+    }
+
     createNewBook(bookParams: Omit<BookParams, "id">): Book {
         const lastId: number = this.bookMap.size;
         const book = new Book({
@@ -12,7 +16,15 @@ class Catalogue {
         return book;
     }
 
-    addBook(book: Book): void {
+    getBook(bookId: number): Book | null {
+        const book = this.bookMap.get(bookId);
+        if (book)
+            return book;
+        else
+            return null;
+    }
+
+    setBook(book: Book): void {
         this.bookMap.set(book.id, book);
     };
 
@@ -24,9 +36,24 @@ class Catalogue {
         return false;
     };
 
-    findBook(bookParams: Partial<BookParams>): Book | null { 
-        // a & b & c
-        return null; 
+    editBook(bookId: number, newBookParams: Partial<Omit<BookParams, "id">>): boolean {
+        const editedBook = this.bookMap.get(bookId);
+        if (editedBook === undefined)
+            return false;
+        
+        for (let [key, value] of Object.entries(newBookParams))
+            editedBook[key] = value;
+        return true;
+    }
+
+    findBooks(bookParams: Partial<Omit<BookParams, "id">>): Book[] { 
+        let books = this.getAllBooks();
+        for (let [key, value] of Object.entries(bookParams)) {
+            books = books.filter( book => {
+                book[key] === value;
+            });
+        }
+        return books;
     };
 }
 

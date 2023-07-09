@@ -1,3 +1,6 @@
+import { Genre } from "./genre";
+
+
 interface BookParams {
     id: number;
     title: string;
