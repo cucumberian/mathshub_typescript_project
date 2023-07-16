@@ -132,10 +132,10 @@ function main() {
 
     // Просмотр отзывов
     console.log(`Отзывы:`);
-    for (let book of allBooks) {
-        console.log(`Книга: ${book}`);
+    for (let book of userBob.getBookList(catalogue)) {
+        console.log(`\tКнига: ${book}`);
         for (let comment of book.getAllComments(commentManager)) {
-            console.log(`\t${comment}`);
+            console.log(`\t\t${comment}`);
         }
     }
 }

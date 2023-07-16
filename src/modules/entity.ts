@@ -2,6 +2,7 @@ interface Identifiable {
     id: number;
 }
 
+
 class Entity <T extends Identifiable> {
     params: T;
 
@@ -10,17 +11,31 @@ class Entity <T extends Identifiable> {
     }
 }
 
-class EntityManager<T extends Identifiable, C extends Entity<T>> {
-    collection: Map<number, C> = new Map();
 
-    getAllEntities(): C[] {
-        return Object.values(Object.fromEntries(this.collection));
-    }
+// class EntityManager <T extends Identifiable> {
+//     collection: Map<number, T> = new Map();
 
-    getSize(): number {
-        return this.collection.size;
-    }
-}
+//     getAllEntities(): T[] {
+//         return Object.values(Object.fromEntries(this.colelction.entries()));
+//     }
+
+//     addEntity(params: Omit<T, "id">): T {
+//         const lastId = this.collection.size;
+//         const newEntity = new Entity<T>({...params, ...{id: lastId}});
+//         return newEntity;
+//     }
+// }
+// class EntityManager<T extends Identifiable, C extends Entity<T>> {
+//     collection: Map<number, C> = new Map();
+
+//     getAllEntities(): C[] {
+//         return Object.values(Object.fromEntries(this.collection));
+//     }
+
+//     getSize(): number {
+//         return this.collection.size;
+//     }
+// }
 
 // class EntityManager<T extends Identifiable> {
 //     collection: Map<number, Entity<T>> = new Map();
