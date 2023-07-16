@@ -12,6 +12,7 @@ class Rating implements RatingParams {
     userId: number;
     
     constructor(ratingParams: RatingParams) {
+        // нет проверки на диапазон рейтинга
         for (let [key, value] of Object.entries(ratingParams)) {
             this[key] = value;
         }
@@ -29,6 +30,12 @@ class RatingManager {
 
     setRating(rating: Rating) {
         this.ratings.set(rating.id, rating);
+    }
+
+    addRating(ratingParams: Omit<RatingParams, "id">): Rating {
+        const newRating = this.createNewRating(ratingParams);
+        this.setRating(newRating);
+        return newRating;
     }
 
     removeRating(ratingId): boolean {
@@ -64,9 +71,12 @@ class RatingManager {
         return ratings;
     }
 
-    getBookAverageRating(bookid): number {
-        const bookratings = this.findRatings({bookId: bookid.id});
-        return bookratings.reduce((sum, rating) => sum + rating.rating , 0) / bookratings.length;
+    getBookAverageRating(bookId): number | undefined {
+        const bookratings = this.findRatings({bookId: bookId});
+        if (bookratings.length > 0)
+            return bookratings.reduce((sum, rating) => sum + rating.rating , 0) / bookratings.length;
+        else
+            return undefined
     }
 }
 

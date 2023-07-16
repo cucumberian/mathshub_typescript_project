@@ -1,5 +1,9 @@
-import { Genre } from "./genre";
-
+import { Catalogue } from "./catalogue.js";
+import { Comment, CommentManager } from "./comment.js";
+import { Genre } from "./genre.js";
+import { UserParams } from "./user.js";
+import { UserManager } from "./userManager.js";
+import { RatingManager } from "./rating.js";
 
 interface BookParams {
     id: number;
@@ -32,6 +36,19 @@ class Book implements BookParams {
     getAuthor(): string    { return this.author; };
     getGenre(): Genre      { return this.genre; };
     getYear(): number      { return this.year; };
+
+    toString(): string {
+        return `"${this.getTitle()}" by ${this.getAuthor()}, ${this.getGenre()} (${this.getYear()})`;
+    }
+
+    getAllComments(commentManager: CommentManager): Comment[] {
+        return commentManager.findComment({bookId: this.id});
+    }
+
+    getRating(ratingManager: RatingManager): number {
+        return ratingManager.getBookAverageRating(this.id);
+    }
+
 }
 
 export { BookParams, Book };

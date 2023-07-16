@@ -1,7 +1,7 @@
 interface CommentParams {
     id: number;
     text: string;
-    date: Date;
+    date?: Date;
     bookId: number;
     userId: number;
 }
@@ -9,7 +9,7 @@ interface CommentParams {
 class Comment implements CommentParams{
     id: number;
     text: string;
-    date: Date;
+    date?: Date;
     bookId: number;
     userId: number;
 
@@ -17,6 +17,13 @@ class Comment implements CommentParams{
         for ( let [key, value] of Object.entries(commentParams)) {
             this[key] = value;
         }
+
+        if (this.date === undefined)
+            this.date = new Date();
+    }        
+
+    toString(): string {
+        return `"${this.text}" by ${this.userId} [${this.date}]`
     }
 }
 
@@ -31,6 +38,12 @@ class CommentManager {
     createNewComment(commentParams: Omit<Comment, "id">): Comment {
         const lastId: number = this.comments.size;
         const newComment = new Comment({id: lastId, ...commentParams});
+        return newComment;
+    }
+
+    addComment(commantParams: Omit<CommentParams, "id">): Comment {
+        const newComment = this.createNewComment(commantParams);
+        this.setComment(newComment);
         return newComment;
     }
 
@@ -61,16 +74,16 @@ class CommentManager {
         return this.getAllComments().filter( comment => comment.userId === userId);
     }
 
-    getAllBookComments(bookId: number): Comment[] {
-        return this.getAllComments().filter( comment => comment.userId === bookId);
-    }
-
     findComment(commentParams: Partial<Omit<CommentParams, "id">>): Comment[] {
         let comments = this.getAllComments();
         for (let [key, value] of Object.entries(commentParams)) {
             comments = comments.filter( comment => comment[key] === value);
         }
         return comments;
+    }
+
+    getAllBookComments(bookId: number): Comment[] {
+        return this.findComment({bookId: bookId});
     }
 
 }

@@ -1,18 +1,18 @@
-import { Catalogue } from './catalogue';
-import { BookParams, Book } from './book';
-import { Comment, CommentManager, CommentParams } from './comment'; 
-import { UserManager } from './userManager';
+import { Catalogue } from './catalogue.js';
+import { BookParams, Book } from './book.js';
+import { Comment, CommentManager, CommentParams } from './comment.js'; 
+import { UserManager } from './userManager.js';
 import { RatingManager } from './rating';
 
-enum Role {Admin, Librarian, User};
+enum Role {admin, librarian, user};
 
 
 interface UserParams {
     id: number;
     name: string;
     email: string;
-    role: Role;
-    favorites: Map<number, Book>;
+    role: Role | string;
+    favorites?: Set<number>;
 }
 
 
@@ -20,15 +20,29 @@ class User implements UserParams {
     id: number;
     name: string;
     email: string;
-    role: Role;
-    favorites: Map<number, Book>;
+    role: Role | string;
+    favorites?: Set<number>;
 
     constructor(userParams: UserParams) {
+        
         for (let [key, value] of Object.entries(userParams)) {
             this[key] = value;
         }
+        
+        if (!(this.role in Role))
+            throw new Error(`Unexpected user role: ${this.role}, user.role must be in ${Role}`);
+        else 
+            this.role = this.role;
+
+        if (this.favorites === undefined) {
+            this.favorites = new Set();
+        }
     }
 
+    // Magick methods
+    toString(): string {
+        return `${this.name} [${this.email}], role: ${this.role}`;
+    }
 
     // Common methods
     findBooks(
@@ -39,9 +53,11 @@ class User implements UserParams {
     };
 
     addCommentToBook(
-        commentParams: Omit<CommentParams, "id">,
+        text: string,
+        bookId: number,
         commentManager: CommentManager,
     ): Comment {
+        const commentParams = {text, bookId, userId: this.id, };
         const newComment = commentManager.createNewComment(commentParams);
         commentManager.setComment(newComment);
         return newComment;
@@ -84,31 +100,36 @@ class User implements UserParams {
     
 
     addFavoriteBook(book: Book): void {
-        this.favorites.set(book.id, book);
+        this.favorites.add(book.id);
     }
 
     delFavoriteBook(book: Book): void {
         this.favorites.delete(book.id);
     }
 
-    listFavorites(): Book[] {
-        return Object.values(Object.fromEntries(this.favorites));
+    getFavorites(catalogue: Catalogue): Book[] {
+        const favorites: Book[] = [];
+        const favoritesIds = Array.from(this.favorites.values());
+        favoritesIds.forEach( id => favorites.push(catalogue.getBook(id)));
+        return favorites;
+    }
+
+    getComments(commentManager: CommentManager): Comment[] {
+        const userComments = commentManager.getAllUserComments(this.id);
+        return userComments;
     }
 
 
     // Admin methods
     addUser(userManager: UserManager, userParams: Omit<UserParams, "id">): User | null {
-        if (this.role === Role.Admin) {
-            const newUser = userManager.createNewUser(userParams);
-            userManager.setUser(newUser);
-            return newUser;
-        }
+        if (this.role === Role.admin)
+            return userManager.addUser(userParams);
         else
             return null;
     }
 
     delUser(userManager: UserManager, userId): boolean | null {
-        if (this.role === Role.Admin) {
+        if (this.role === Role.admin) {
             return userManager.removeUser(userId);
         }
         else 
@@ -120,7 +141,7 @@ class User implements UserParams {
         userParams: Partial<Omit<UserParams, "id">>,
         userId: number,
     ): boolean | null {
-        if (this.role === Role.Admin) {
+        if (this.role === Role.admin) {
             return userManager.editUser(userId, userParams)
         }
         else
@@ -130,7 +151,7 @@ class User implements UserParams {
 
     // Librarian methods
     addBook(catalogue: Catalogue, bookParams: Omit<BookParams, "id">): Book | null {
-        if (this.role === Role.Librarian) {
+        if (this.role === Role.librarian) {
             const newBook = catalogue.createNewBook(bookParams);
             catalogue.setBook(newBook);
             return newBook;
@@ -140,7 +161,7 @@ class User implements UserParams {
     }
 
     delBook(catalogue: Catalogue, bookId): boolean | null {
-        if (this.role === Role.Librarian)
+        if (this.role === Role.librarian)
             return catalogue.removeBook(bookId);
         else
             return null;
@@ -151,7 +172,7 @@ class User implements UserParams {
         bookParams: Partial<Omit<BookParams, "id">>,
         bookId: number,
     ): boolean | null {
-        if (this.role === Role.Librarian) {
+        if (this.role === Role.librarian) {
             return catalogue.editBook(bookId, bookParams);
         }
         else

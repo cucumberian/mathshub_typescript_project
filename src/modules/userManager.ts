@@ -1,18 +1,24 @@
-import { UserParams, User } from './user';
+import { UserParams, User } from './user.js';
 
 class UserManager {
-    userMap: Map<number, User>;
+    userMap: Map<number, User> = new Map();
 
     getAllUsers(): User[] {
         return Object.values(Object.fromEntries(this.userMap));
     }
 
-    createNewUser(userParams: Omit<UserParams, "id">): User {
+    private createNewUser(userParams: Omit<UserParams, "id">): User {
         const lastId: number = this.userMap.size;
         const newUser = new User({
             id: lastId,
             ...userParams,
         });
+        return newUser;
+    }
+
+    addUser(userParams: Omit<UserParams, "id">): User {
+        const newUser = this.createNewUser(userParams);
+        this.setUser(newUser);
         return newUser;
     }
 
@@ -29,9 +35,9 @@ class UserManager {
         this.userMap.set(user.id, user);
     }
 
-    removeUser(user: User): boolean {
-        if (this.userMap.has(user.id)) {
-            this.userMap.delete(user.id);
+    removeUser(userId: number): boolean {
+        if (this.userMap.has(userId)) {
+            this.userMap.delete(userId);
             return true;
         }
         return false;

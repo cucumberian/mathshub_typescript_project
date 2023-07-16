@@ -1,7 +1,7 @@
-import { BookParams, Book } from './book';
+import { BookParams, Book } from './book.js';
 
 class Catalogue {
-    bookMap: Map<number, Book>;
+    bookMap: Map<number, Book> = new Map();
 
     getAllBooks(): Book[] {
         return Object.values(Object.fromEntries(this.bookMap));
@@ -14,6 +14,12 @@ class Catalogue {
             ...bookParams,
         });
         return book;
+    }
+
+    addBook(bookParams: Omit<BookParams, "id">): Book {
+        const newBook = this.createNewBook(bookParams);
+        this.setBook(newBook);
+        return newBook;
     }
 
     getBook(bookId: number): Book | null {
